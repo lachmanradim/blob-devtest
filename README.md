@@ -1,6 +1,6 @@
 # blob-devtest
 
-Vue 3 starter project with TypeScript, Vuetify, and SCSS.
+Blob dev test by: Radim Lachman
 
 ## Tech Stack
 
