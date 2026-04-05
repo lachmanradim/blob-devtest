@@ -1,0 +1,11 @@
+{
+    "folders": [
+        {
+            "path": ".",
+        },
+    ],
+    "settings": {},
+    "extensions": {
+        "recommendations": ["vue.volar", "esbenp.prettier-vscode", "dbaeumer.vscode-eslint"],
+    },
+}
