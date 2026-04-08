@@ -14,7 +14,7 @@ const router = createRouter({
             component: () => import("@/layouts/MainLayout.vue"),
             children: [
                 {
-                    name: Routes.Vacations,
+                    name: Routes.PendingVacations,
                     path: "/dovolene",
                     component: () => import("@/views/VacationsView.vue"),
                 },

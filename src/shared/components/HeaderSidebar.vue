@@ -1,6 +1,6 @@
 <template>
     <VAppBar class="pr-4" border>
-        <template v-slot:prepend>
+        <template #prepend>
             <VAppBarNavIcon @click="toggleSidebar" />
         </template>
         <VAppBarTitle>Dovolenkátor</VAppBarTitle>
@@ -17,9 +17,9 @@
                         <VListItemAction>
                             <VSwitch
                                 id="dark-theme-switch"
+                                v-model="isDarkTheme"
                                 hide-details
                                 inset
-                                v-model="isDarkTheme"
                                 false-icon="mdi-white-balance-sunny"
                                 true-icon="mdi-weather-night"
                             />

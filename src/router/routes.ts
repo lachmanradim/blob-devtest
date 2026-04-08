@@ -1,6 +1,6 @@
 export enum Routes {
     Login = "login",
-    Vacations = "vacations",
+    PendingVacations = "pending-vacations",
     VacationRequest = "vacation-request",
     NotFound = "not-found",
 }

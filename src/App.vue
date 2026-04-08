@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import Snackbar from "./shared/components/Snackbar.vue";
+import Snackbar from "./shared/components/SnackbarMessages.vue";
 </script>
 
 <style lang="scss">

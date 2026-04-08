@@ -4,7 +4,7 @@
             <VCol cols="4">
                 <VCard border class="pa-6" rounded="xl">
                     <VCardTitle class="pa-0"> Dovolenkátor </VCardTitle>
-                    <form @submit.prevent="submitLogin" class="mt-4 d-flex flex-column">
+                    <form class="mt-4 d-flex flex-column" @submit.prevent="submitLogin">
                         <VTextField
                             v-model.trim="loginField.value.value"
                             :error-messages="loginField.errorMessage.value"
@@ -50,6 +50,6 @@ const loginField = useField("login");
 
 const submitLogin = handleSubmit(() => {
     snackbarStore.showMessage("Přihlášení úspěšné!", undefined, SnackbarMessageType.Success);
-    router.push({ name: Routes.Vacations });
+    router.push({ name: Routes.PendingVacations });
 });
 </script>
