@@ -4,21 +4,21 @@ import vuetify from "vite-plugin-vuetify";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    vuetify({
-      autoImport: true,
-      styles: {
-        configFile: "src/styles/settings.scss",
-      },
-    }),
-  ],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    plugins: [
+        vue(),
+        vuetify({
+            autoImport: true,
+            styles: {
+                configFile: "styles/settings.scss",
+            },
+        }),
+    ],
+    resolve: {
+        alias: {
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
+        },
     },
-  },
-  build: {
-    target: "esnext",
-  },
+    build: {
+        target: "esnext",
+    },
 });

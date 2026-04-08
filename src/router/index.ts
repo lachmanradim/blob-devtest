@@ -1,12 +1,23 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { Routes } from "./routes";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            name: Routes.Login,
             path: "/",
-            name: "home",
-            component: () => import("@/views/HomeView.vue"),
+            component: () => import("@/views/LoginView.vue"),
+        },
+        {
+            name: Routes.Vacations,
+            path: "/dovolene",
+            component: () => import("@/views/VacationsView.vue"),
+        },
+        {
+            name: Routes.NotFound,
+            path: "/:pathMatch(.*)*",
+            component: () => import("@/views/NotFound.vue"),
         },
     ],
 });

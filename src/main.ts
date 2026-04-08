@@ -2,14 +2,26 @@ import { createApp } from "vue";
 import { createVuetify } from "vuetify";
 import App from "./App.vue";
 import router from "./router";
+import { createPinia } from "pinia";
 
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 
 const vuetify = createVuetify({
     theme: {
-        defaultTheme: "light",
+        defaultTheme: "system",
+    },
+    defaults: {
+        global: {
+            flat: true,
+        },
     },
 });
 
-createApp(App).use(vuetify).use(router).mount("#app");
+const pinia = createPinia();
+const app = createApp(App);
+
+app.use(router);
+app.use(vuetify);
+app.use(pinia);
+app.mount("#app");

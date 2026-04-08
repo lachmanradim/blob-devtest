@@ -1,6 +1,6 @@
 # blob-devtest
 
-Blob dev test by: Radim Lachman
+Dovolenkátor by: Radim Lachman
 
 ## Tech Stack
 
