@@ -1,16 +1,16 @@
 <template>
-    <v-app>
-        <v-main>
-            <v-container class="fill-height">
-                <v-row justify="center" class="fill-height">
-                    <v-col cols="12" class="fill-height">
-                        <router-view />
-                    </v-col>
-                </v-row>
-            </v-container>
+    <VApp>
+        <VMain>
+            <VContainer class="fill-height">
+                <VRow justify="center" class="fill-height">
+                    <VCol cols="12" class="fill-height">
+                        <RouterView />
+                    </VCol>
+                </VRow>
+            </VContainer>
             <Snackbar />
-        </v-main>
-    </v-app>
+        </VMain>
+    </VApp>
 </template>
 
 <script setup lang="ts">

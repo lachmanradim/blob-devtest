@@ -14,6 +14,14 @@ const vuetify = createVuetify({
     defaults: {
         global: {
             flat: true,
+            elevation: 0,
+        },
+        VBtn: {
+            rounded: "pill",
+            size: "large",
+        },
+        VListItem: {
+            rounded: "pill",
         },
     },
 });

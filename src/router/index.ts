@@ -10,9 +10,15 @@ const router = createRouter({
             component: () => import("@/views/LoginView.vue"),
         },
         {
-            name: Routes.Vacations,
-            path: "/dovolene",
-            component: () => import("@/views/VacationsView.vue"),
+            path: "/",
+            component: () => import("@/layouts/MainLayout.vue"),
+            children: [
+                {
+                    name: Routes.Vacations,
+                    path: "/dovolene",
+                    component: () => import("@/views/VacationsView.vue"),
+                },
+            ],
         },
         {
             name: Routes.NotFound,

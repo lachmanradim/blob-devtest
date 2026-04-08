@@ -1,11 +1,11 @@
 <template>
-    <v-container class="fill-height d-flex align-center">
-        <v-row justify="center">
-            <v-col cols="4">
-                <v-card border class="pa-6" rounded="xl">
-                    <v-card-title class="pa-0"> Dovolenkátor </v-card-title>
+    <VContainer class="fill-height d-flex align-center">
+        <VRow justify="center">
+            <VCol cols="4">
+                <VCard border class="pa-6" rounded="xl">
+                    <VCardTitle class="pa-0"> Dovolenkátor </VCardTitle>
                     <form @submit.prevent="submitLogin" class="mt-4 d-flex flex-column">
-                        <v-text-field
+                        <VTextField
                             v-model.trim="loginField.value.value"
                             :error-messages="loginField.errorMessage.value"
                             type="text"
@@ -14,21 +14,19 @@
                             rounded="pill"
                             variant="outlined"
                         />
-                        <v-btn
+                        <VBtn
                             color="primary"
                             class="mt-4 align-self-end"
                             type="submit"
                             :disabled="!meta.valid"
-                            rounded="pill"
-                            size="large"
                         >
                             Přihlásit
-                        </v-btn>
+                        </VBtn>
                     </form>
-                </v-card>
-            </v-col>
-        </v-row>
-    </v-container>
+                </VCard>
+            </VCol>
+        </VRow>
+    </VContainer>
 </template>
 
 <script lang="ts" setup>

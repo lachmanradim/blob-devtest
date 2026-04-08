@@ -1,5 +1,5 @@
 <template>
-    <v-snackbar-queue
+    <VSnackbarQueue
         v-model="snackbarMessages"
         :total-visible="5"
         location="top"
@@ -7,9 +7,9 @@
         closable
     >
         <template #actions="{ props }">
-            <v-btn icon="$close" variant="text" v-bind="props" />
+            <VBtn icon="$close" variant="text" v-bind="props" />
         </template>
-    </v-snackbar-queue>
+    </VSnackbarQueue>
 </template>
 
 <script lang="ts" setup>
