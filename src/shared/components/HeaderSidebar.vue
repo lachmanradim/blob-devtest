@@ -7,8 +7,24 @@
     </VAppBar>
     <VNavigationDrawer v-model="isSidebarOpen" temporary class="pa-2" width="280">
         <VList>
-            <VListItem prepend-icon="mdi-plus" title="Nová žádost" />
-            <VListItem prepend-icon="mdi-table-alert" title="Žádosti ke schválení" />
+            <VListItem
+                v-if="showMyVacations"
+                prepend-icon="mdi-table-account"
+                title="Moje žádosti"
+                :to="{ name: Routes.PersonalVacations }"
+            />
+            <VListItem
+                v-if="showApprovedRejectedVacations"
+                prepend-icon="mdi-table-check"
+                title="Schválené/Zamítnuté žádosti"
+                :to="{ name: Routes.ApprovedRejectedVacations }"
+            />
+            <VListItem
+                v-if="showPendingVacations"
+                prepend-icon="mdi-table-alert"
+                title="Žádosti ke schválení"
+                :to="{ name: Routes.PendingVacations }"
+            />
         </VList>
         <template #append>
             <VList>
@@ -32,6 +48,7 @@
                     :to="{ name: Routes.Login }"
                     color="primary"
                     active
+                    @click="logout"
                 />
             </VList>
         </template>
@@ -42,6 +59,15 @@
 import { computed, ref } from "vue";
 import { useTheme } from "vuetify";
 import { Routes } from "@/router/routes";
+import { userHasPermission } from "../utils/user-has-permission";
+import { useUserStore } from "../stores/use-user-store";
+import { storeToRefs } from "pinia";
+import { UserPermission } from "../models/user-permissions";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const userStore = useUserStore();
+const { isLoggedIn, activeUser } = storeToRefs(userStore);
 
 const theme = useTheme();
 const isDarkTheme = computed({
@@ -56,5 +82,28 @@ const isDarkTheme = computed({
 const isSidebarOpen = ref(false);
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+const showMyVacations = computed(() => {
+    if (!isLoggedIn.value || !activeUser.value) return false;
+
+    return userHasPermission(activeUser.value, UserPermission.ViewPersonalVacations);
+});
+
+const showPendingVacations = computed(() => {
+    if (!isLoggedIn.value || !activeUser.value) return false;
+
+    return userHasPermission(activeUser.value, UserPermission.ViewPendingVacations);
+});
+
+const showApprovedRejectedVacations = computed(() => {
+    if (!isLoggedIn.value || !activeUser.value) return false;
+
+    return userHasPermission(activeUser.value, UserPermission.ViewApprovedRejectedVacations);
+});
+
+const logout = () => {
+    userStore.logOut();
+    router.push({ name: Routes.Login });
 };
 </script>

@@ -1,5 +1,3 @@
-import { Employee } from "@/shared/models/employee";
-
 export enum VacationStatus {
     Pending = "pending",
     Approved = "approved",
@@ -12,7 +10,8 @@ export enum VacationType {
 }
 
 export type Vacation = {
-    employee: Employee;
+    id: number;
+    employeeName: string;
     dateFrom: Date;
     dateTo: Date;
     dateCreated: Date;

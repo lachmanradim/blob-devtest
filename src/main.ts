@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createVuetify } from "vuetify";
+import { cs } from "vuetify/locale";
 import App from "./App.vue";
 import router from "./router";
 import { createPinia } from "pinia";
@@ -8,6 +9,10 @@ import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 
 const vuetify = createVuetify({
+    locale: {
+        locale: "cs",
+        messages: { cs },
+    },
     theme: {
         defaultTheme: "system",
     },
@@ -21,6 +26,9 @@ const vuetify = createVuetify({
             size: "large",
         },
         VListItem: {
+            rounded: "pill",
+        },
+        VField: {
             rounded: "pill",
         },
     },

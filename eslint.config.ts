@@ -17,7 +17,7 @@ export default tseslint.config(
             // General JS
             "no-console": ["warn", { allow: ["warn", "error"] }],
             "no-debugger": "error",
-            eqeqeq: ["error", "always"],
+            eqeqeq: ["error", "smart"],
             "object-shorthand": "error",
             "prefer-const": "error",
         },
@@ -43,6 +43,11 @@ export default tseslint.config(
             "vue/require-explicit-emits": "error",
             "vue/v-bind-style": "error",
             "vue/v-on-style": "error",
+            "vue/valid-v-slot": "off",
+
+            // TypeScript rules that must be re-applied for .vue files
+            "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
+            "@typescript-eslint/consistent-type-definitions": ["error", "type"],
         },
     },
     {
