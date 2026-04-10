@@ -1,12 +1,12 @@
 <template>
+    <VacationsTable title="Schválené žádosti" :items="approvedVacations" hide-footer hide-actions />
     <VacationsTable
-        class="mb-4"
-        title="Schválené žádosti"
-        :items="approvedVacations"
+        title="Zamítnuté žádosti"
+        :items="rejectedVacations"
         hide-footer
         hide-actions
+        show-reject-reason
     />
-    <VacationsTable title="Zamítnuté žádosti" :items="rejectedVacations" hide-footer hide-actions />
 </template>
 
 <script setup lang="ts">

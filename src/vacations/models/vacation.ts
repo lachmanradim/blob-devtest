@@ -18,4 +18,5 @@ export type Vacation = {
     status: VacationStatus;
     type: VacationType;
     commentary?: string;
+    rejectReason?: string;
 };

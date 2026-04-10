@@ -36,16 +36,17 @@ export const useVacationsStore = defineStore("vacations", () => {
     const approveVacation = (vacationId: number) => {
         const vacation = vacations.value.find((v) => v.id === vacationId);
 
-        if (vacation) {
+        if (vacation && vacation.status === VacationStatus.Pending) {
             vacation.status = VacationStatus.Approved;
         }
     };
 
-    const rejectVacation = (vacationId: number) => {
+    const rejectVacation = (vacationId: number, reason: string) => {
         const vacation = vacations.value.find((v) => v.id === vacationId);
 
-        if (vacation) {
+        if (vacation && vacation.status === VacationStatus.Pending) {
             vacation.status = VacationStatus.Rejected;
+            vacation.rejectReason = reason;
         }
     };
 

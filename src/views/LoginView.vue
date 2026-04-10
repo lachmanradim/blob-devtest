@@ -74,7 +74,7 @@ const comboboxOptions = [
 
 const submitLogin = handleSubmit((values) => {
     userStore.logIn(values.login, values.role.value);
-    snackbarStore.showMessage("Přihlášení úspěšné!", undefined, SnackbarMessageType.Success);
+    snackbarStore.showMessage("Přihlášení úspěšné!", "", SnackbarMessageType.Success);
 
     if (userHasPermission(activeUser.value, UserPermission.ViewPendingVacations)) {
         router.push({ name: Routes.PendingVacations });
