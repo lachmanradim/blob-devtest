@@ -7,13 +7,14 @@ export const useSnackbarStore = defineStore("snackbar", () => {
     const snackbarMessages = ref<SnackbarQueueMessage[]>([]);
 
     const showMessage = (
-        title?: string | undefined,
-        text?: string | undefined,
+        title?: string,
+        text?: string,
         type: SnackbarMessageType = SnackbarMessageType.Default,
         timeout = 2000,
     ) => {
-        const color = type === SnackbarMessageType.Default ? undefined : type;
-        const icon = type === SnackbarMessageType.Default ? undefined : `$${type}`;
+        const isDefault = type === SnackbarMessageType.Default;
+        const color = isDefault ? undefined : type;
+        const icon = isDefault ? undefined : `$${type}`;
 
         snackbarMessages.value.push({
             title,

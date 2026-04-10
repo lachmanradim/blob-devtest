@@ -14,9 +14,10 @@ export const useVacationsStore = defineStore("vacations", () => {
     const nextVacationId = () => Math.max(0, ...allVacations.value.map((v) => v.id)) + 1;
 
     const userVacations = computed(() => {
-        if (!activeUser.value) return [];
+        const user = activeUser.value;
+        if (!user) return [];
 
-        return allVacations.value.filter((v) => v.employeeId === activeUser.value?.employeeId);
+        return allVacations.value.filter((v) => v.employeeId === user.employeeId);
     });
 
     const userUnresolvedVacations = computed(() =>
@@ -39,29 +40,32 @@ export const useVacationsStore = defineStore("vacations", () => {
         allVacations.value.filter((v) => v.status === VacationStatus.Pending),
     );
 
-    const createVacationRequest = (
-        dateCreated: Date,
-        dateFrom: Date,
-        dateTo: Date,
-        type: VacationType,
-        status: VacationStatus,
-        commentary: string,
-        employeeId: number,
-        employeeName: string,
-    ) => {
-        const vacation: Vacation = {
+    const createVacationRequest = ({
+        dateFrom,
+        dateTo,
+        type,
+        commentary,
+        employeeId,
+        employeeName,
+    }: {
+        dateFrom: Date;
+        dateTo: Date;
+        type: VacationType;
+        commentary: string;
+        employeeId: number;
+        employeeName: string;
+    }) => {
+        allVacations.value.push({
             id: nextVacationId(),
-            dateCreated,
+            dateCreated: new Date(),
+            status: VacationStatus.Pending,
             dateFrom,
             dateTo,
             type,
-            status,
             commentary,
             employeeId,
             employeeName,
-        };
-
-        allVacations.value.push(vacation);
+        });
     };
 
     const editVacationRequest = (

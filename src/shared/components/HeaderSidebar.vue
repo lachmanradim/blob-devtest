@@ -1,7 +1,7 @@
 <template>
     <VAppBar class="pr-4" border>
         <template #prepend>
-            <VAppBarNavIcon @click="toggleSidebar" />
+            <VAppBarNavIcon @click="isSidebarOpen = !isSidebarOpen" />
         </template>
         <VAppBarTitle>Dovolenkátor</VAppBarTitle>
     </VAppBar>
@@ -58,15 +58,13 @@
 import { computed, ref } from "vue";
 import { useTheme } from "vuetify";
 import { Routes } from "@/router/routes";
-import { userHasPermission } from "../utils/user-has-permission";
-import { useUserStore } from "../stores/use-user-store";
-import { storeToRefs } from "pinia";
-import { UserPermission } from "../models/user-permissions";
+import { userHasPermission } from "@/shared/utils/user-has-permission";
+import { useUserStore } from "@/shared/stores/use-user-store";
+import { UserPermission } from "@/shared/models/user-permissions";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const userStore = useUserStore();
-const { isLoggedIn } = storeToRefs(userStore);
 
 const theme = useTheme();
 const isDarkTheme = computed({
@@ -79,20 +77,13 @@ const isDarkTheme = computed({
 });
 
 const isSidebarOpen = ref(false);
-const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value;
-};
 
-const showMyVacations = computed(
-    () => isLoggedIn.value && userHasPermission(UserPermission.ViewPersonalVacations),
-);
+const showMyVacations = computed(() => userHasPermission(UserPermission.ViewPersonalVacations));
 
-const showPendingVacations = computed(
-    () => isLoggedIn.value && userHasPermission(UserPermission.ViewPendingVacations),
-);
+const showPendingVacations = computed(() => userHasPermission(UserPermission.ViewPendingVacations));
 
-const showApprovedRejectedVacations = computed(
-    () => isLoggedIn.value && userHasPermission(UserPermission.ViewApprovedRejectedVacations),
+const showApprovedRejectedVacations = computed(() =>
+    userHasPermission(UserPermission.ViewApprovedRejectedVacations),
 );
 
 const logout = () => {

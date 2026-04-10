@@ -9,51 +9,7 @@
                 <VBtn icon="mdi-close" size="small" @click="closeDialog" />
             </VCardTitle>
             <VCardText>
-                <form class="mt-4 d-flex flex-column" @submit.prevent="submitRequest">
-                    <VDatePicker
-                        v-model="datesField.value.value"
-                        hide-header
-                        show-adjacent-months
-                        width="100%"
-                        :border="datesField.errorMessage.value ? 'error sm' : 'opacity-25 sm'"
-                        rounded="xl"
-                        class="mb-1"
-                        multiple="range"
-                        :min="minDate"
-                    />
-                    <div
-                        v-if="datesField.errorMessage.value"
-                        class="text-error text-caption mb-4 ml-4"
-                    >
-                        {{ datesField.errorMessage.value }}
-                    </div>
-                    <div v-else class="mb-4"></div>
-                    <VSelect
-                        v-model="typeField.value.value"
-                        :error-messages="typeField.errorMessage.value"
-                        label="Typ dovolené"
-                        :items="vacationTypes"
-                        variant="outlined"
-                        class="mb-1"
-                    />
-                    <VTextField
-                        v-model="commentaryField.value.value"
-                        :error-messages="commentaryField.errorMessage.value"
-                        label="Komentář"
-                        variant="outlined"
-                        autocomplete="off"
-                        class="mb-1"
-                    />
-                    <VBtn
-                        :disabled="!meta.valid || !meta.dirty"
-                        color="primary"
-                        variant="flat"
-                        block
-                        type="submit"
-                    >
-                        Odeslat žádost
-                    </VBtn>
-                </form>
+                <VacationForm ref="formRef" submit-label="Odeslat žádost" @submit="submitRequest" />
             </VCardText>
         </VCard>
     </VDialog>
@@ -61,14 +17,13 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { VacationStatus, VacationType } from "../models/vacation";
-import { useField, useForm } from "vee-validate";
-import { array, date, mixed, object, string } from "yup";
+import type { VacationType } from "../models/vacation";
 import { useVacationsStore } from "../stores/use-vacations-store";
 import { useUserStore } from "@/shared/stores/use-user-store";
 import { storeToRefs } from "pinia";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
+import VacationForm from "./VacationForm.vue";
 
 const vacationsStore = useVacationsStore();
 const userStore = useUserStore();
@@ -76,51 +31,28 @@ const { activeUser } = storeToRefs(userStore);
 const snackbarStore = useSnackbarStore();
 
 const isDialogOpen = ref(false);
-
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-const minDate = new Date(Date.now() + ONE_DAY_MS);
-
-const vacationTypes = [
-    { title: "Dovolená", value: VacationType.Regular },
-    { title: "Sick Day", value: VacationType.SickDay },
-];
-
-const { handleSubmit, meta, resetForm } = useForm({
-    validationSchema: object({
-        dates: array().of(date()).min(1, "Datum je povinné").required("Datum je povinné"),
-        type: mixed<VacationType>()
-            .oneOf(Object.values(VacationType))
-            .required("Typ dovolené je povinný"),
-        commentary: string(),
-    }),
-});
-
-const datesField = useField<Date[]>("dates");
-const typeField = useField<VacationType>("type");
-const commentaryField = useField<string>("commentary");
+const formRef = ref<InstanceType<typeof VacationForm> | null>(null);
 
 const openDialog = () => {
     isDialogOpen.value = true;
 };
 
 const closeDialog = () => {
-    resetForm();
+    formRef.value?.resetForm();
     isDialogOpen.value = false;
 };
 
-const submitRequest = handleSubmit((values) => {
+const submitRequest = (values: { dates: Date[]; type: VacationType; commentary: string }) => {
     if (!activeUser.value) return;
 
-    vacationsStore.createVacationRequest(
-        new Date(),
-        values.dates[0],
-        values.dates[1] ?? values.dates[0],
-        values.type,
-        VacationStatus.Pending,
-        values.commentary,
-        activeUser.value.employeeId,
-        activeUser.value.username,
-    );
+    vacationsStore.createVacationRequest({
+        dateFrom: values.dates[0],
+        dateTo: values.dates[1] ?? values.dates[0],
+        type: values.type,
+        commentary: values.commentary,
+        employeeId: activeUser.value.employeeId,
+        employeeName: activeUser.value.username,
+    });
     snackbarStore.showMessage(
         "Žádost byla úspěšně vytvořena",
         undefined,
@@ -128,5 +60,5 @@ const submitRequest = handleSubmit((values) => {
     );
 
     closeDialog();
-});
+};
 </script>

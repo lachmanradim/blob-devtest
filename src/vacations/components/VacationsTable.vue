@@ -126,9 +126,9 @@ const snackbarStore = useSnackbarStore();
 
 const search = ref("");
 
-function onSearchChange(val: string | null) {
+const onSearchChange = (val: string | null) => {
     search.value = (val ?? "").replace(/\s+/g, " ").trim();
-}
+};
 
 const rejectVacationRequestId = ref<number | null>(null);
 const openRejectDialog = (vacationId: number) => {

@@ -6,51 +6,11 @@
                 <VBtn icon="mdi-close" size="small" @click="closeDialog" />
             </VCardTitle>
             <VCardText>
-                <form class="mt-4 d-flex flex-column" @submit.prevent="editRequest">
-                    <VDatePicker
-                        v-model="datesField.value.value"
-                        hide-header
-                        show-adjacent-months
-                        width="100%"
-                        :border="datesField.errorMessage.value ? 'error sm' : 'opacity-25 sm'"
-                        rounded="xl"
-                        class="mb-1"
-                        multiple="range"
-                        :min="minDate"
-                    />
-                    <div
-                        v-if="datesField.errorMessage.value"
-                        class="text-error text-caption mb-4 ml-4"
-                    >
-                        {{ datesField.errorMessage.value }}
-                    </div>
-                    <div v-else class="mb-4"></div>
-                    <VSelect
-                        v-model="typeField.value.value"
-                        :error-messages="typeField.errorMessage.value"
-                        label="Typ dovolené"
-                        :items="vacationTypes"
-                        variant="outlined"
-                        class="mb-1"
-                    />
-                    <VTextField
-                        v-model="commentaryField.value.value"
-                        :error-messages="commentaryField.errorMessage.value"
-                        label="Komentář"
-                        variant="outlined"
-                        autocomplete="off"
-                        class="mb-1"
-                    />
-                    <VBtn
-                        :disabled="!meta.valid || !meta.dirty"
-                        color="primary"
-                        variant="flat"
-                        block
-                        type="submit"
-                    >
-                        Upravit žádost
-                    </VBtn>
-                </form>
+                <VacationForm
+                    submit-label="Upravit žádost"
+                    :initial-values="formInitialValues"
+                    @submit="editRequest"
+                />
             </VCardText>
         </VCard>
     </VDialog>
@@ -62,45 +22,37 @@ import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
 import { storeToRefs } from "pinia";
-import { VacationType } from "../models/vacation";
-import { useField, useForm } from "vee-validate";
-import { array, date, mixed, object, string } from "yup";
-import { useUserStore } from "@/shared/stores/use-user-store";
+import type { VacationType } from "@/vacations/models/vacation";
+import VacationForm from "./VacationForm.vue";
 
 const vacationsStore = useVacationsStore();
 const { userUnresolvedVacations } = storeToRefs(vacationsStore);
 const snackbarStore = useSnackbarStore();
-const userStore = useUserStore();
-const { activeUser } = storeToRefs(userStore);
 
 const activeVacationId = defineModel<number | null>();
 const isDialogOpen = ref(false);
 
-const activeVacation = computed(() => {
-    return userUnresolvedVacations.value.find((v) => v.id === activeVacationId.value) || null;
-});
+const activeVacation = computed(
+    () => userUnresolvedVacations.value.find((v) => v.id === activeVacationId.value) ?? null,
+);
 
-const { handleSubmit, meta, resetForm } = useForm({
-    validationSchema: object({
-        dates: array().of(date()).min(1, "Datum je povinné").required("Datum je povinné"),
-        type: mixed<VacationType>()
-            .oneOf(Object.values(VacationType))
-            .required("Typ dovolené je povinný"),
-        commentary: string(),
-    }),
-});
-
-const datesField = useField<Date[]>("dates");
-const typeField = useField<VacationType>("type");
-const commentaryField = useField<string>("commentary");
+const formInitialValues = computed(() =>
+    activeVacation.value
+        ? {
+              dates: [activeVacation.value.dateFrom, activeVacation.value.dateTo],
+              type: activeVacation.value.type,
+              commentary: activeVacation.value.commentary ?? "",
+          }
+        : undefined,
+);
 
 const closeDialog = () => {
     activeVacationId.value = null;
     isDialogOpen.value = false;
 };
 
-const editRequest = handleSubmit((values) => {
-    if (!activeUser.value || !activeVacationId.value || !values.type) return;
+const editRequest = (values: { dates: Date[]; type: VacationType; commentary: string }) => {
+    if (!activeVacationId.value) return;
 
     vacationsStore.editVacationRequest(
         activeVacationId.value,
@@ -116,28 +68,9 @@ const editRequest = handleSubmit((values) => {
     );
 
     closeDialog();
-});
+};
 
 watch(activeVacation, (vacation) => {
-    if (vacation) {
-        resetForm({
-            values: {
-                dates: [vacation.dateFrom, vacation.dateTo],
-                type: vacation.type,
-                commentary: vacation.commentary ?? "",
-            },
-        });
-        isDialogOpen.value = true;
-    } else {
-        isDialogOpen.value = false;
-    }
+    isDialogOpen.value = vacation !== null;
 });
-
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-const minDate = new Date(Date.now() + ONE_DAY_MS);
-
-const vacationTypes = [
-    { title: "Dovolená", value: VacationType.Regular },
-    { title: "Sick Day", value: VacationType.SickDay },
-];
 </script>

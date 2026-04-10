@@ -37,10 +37,10 @@ const snackbarStore = useSnackbarStore();
 
 const activeVacationId = defineModel<number | null>();
 const isDialogOpen = ref(false);
-const rejectReason = ref<string>("");
+const rejectReason = ref("");
 
 const confirmDisabledButtons = computed<boolean | ("save" | "cancel")[]>(() => {
-    if (!rejectReason.value.length) return ["save"];
+    if (!rejectReason.value) return ["save"];
 
     return false;
 });

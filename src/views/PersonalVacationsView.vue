@@ -1,7 +1,6 @@
 <template>
     <NewVacationRequest v-if="canCreateRequest" />
     <VacationsTable
-        v-if="canViewPersonalRequests"
         title="Moje žádosti"
         :is-loading
         :items="userUnresolvedVacations"
@@ -11,7 +10,6 @@
         hide-status-column
     />
     <VacationsTable
-        v-if="canViewPersonalRequests"
         title="Moje rozhodnuté žádosti"
         :is-loading
         :items="userResolvedVacations"
@@ -34,7 +32,4 @@ const vacationsStore = useVacationsStore();
 const { userUnresolvedVacations, userResolvedVacations, isLoading } = storeToRefs(vacationsStore);
 
 const canCreateRequest = computed(() => userHasPermission(UserPermission.CreateRequest));
-const canViewPersonalRequests = computed(() =>
-    userHasPermission(UserPermission.ViewPersonalVacations),
-);
 </script>
