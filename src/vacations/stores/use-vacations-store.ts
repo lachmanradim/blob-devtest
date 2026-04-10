@@ -11,41 +11,33 @@ export const useVacationsStore = defineStore("vacations", () => {
     const allVacations = ref<Vacation[]>([]);
     const isLoading = ref(false);
 
+    const nextVacationId = () => Math.max(0, ...allVacations.value.map((v) => v.id)) + 1;
+
     const userVacations = computed(() => {
-        if (!allVacations.value.length || !activeUser.value) return [];
+        if (!activeUser.value) return [];
 
         return allVacations.value.filter((v) => v.employeeId === activeUser.value?.employeeId);
     });
 
-    const userUnresolvedVacations = computed(() => {
-        if (!userVacations.value.length) return [];
+    const userUnresolvedVacations = computed(() =>
+        userVacations.value.filter((v) => v.status === VacationStatus.Pending),
+    );
 
-        return userVacations.value.filter((v) => v.status === VacationStatus.Pending);
-    });
+    const userResolvedVacations = computed(() =>
+        userVacations.value.filter((v) => v.status !== VacationStatus.Pending),
+    );
 
-    const userResolvedVacations = computed(() => {
-        if (!userVacations.value.length) return [];
+    const approvedVacations = computed(() =>
+        allVacations.value.filter((v) => v.status === VacationStatus.Approved),
+    );
 
-        return userVacations.value.filter((v) => v.status !== VacationStatus.Pending);
-    });
+    const rejectedVacations = computed(() =>
+        allVacations.value.filter((v) => v.status === VacationStatus.Rejected),
+    );
 
-    const approvedVacations = computed(() => {
-        if (!allVacations.value.length) return [];
-
-        return allVacations.value.filter((v) => v.status === VacationStatus.Approved);
-    });
-
-    const rejectedVacations = computed(() => {
-        if (!allVacations.value.length) return [];
-
-        return allVacations.value.filter((v) => v.status === VacationStatus.Rejected);
-    });
-
-    const pendingVacations = computed(() => {
-        if (!allVacations.value.length) return [];
-
-        return allVacations.value.filter((v) => v.status === VacationStatus.Pending);
-    });
+    const pendingVacations = computed(() =>
+        allVacations.value.filter((v) => v.status === VacationStatus.Pending),
+    );
 
     const createVacationRequest = (
         dateCreated: Date,
@@ -58,7 +50,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         employeeName: string,
     ) => {
         const vacation: Vacation = {
-            id: allVacations.value.length + 1,
+            id: nextVacationId(),
             dateCreated,
             dateFrom,
             dateTo,
@@ -93,7 +85,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
-            allVacations.value = allVacations.value.filter((v) => v.id !== vacationId);
+            allVacations.value.splice(allVacations.value.indexOf(vacation), 1);
         }
     };
 

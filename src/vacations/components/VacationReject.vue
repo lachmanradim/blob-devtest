@@ -13,11 +13,11 @@
                             v-model="rejectReason"
                             label="Důvod zamítnutí"
                             variant="outlined"
-                        ></VTextField>
+                        />
                     </VCardText>
 
                     <template #actions>
-                        <VSpacer></VSpacer>
+                        <VSpacer />
                         <component :is="actions"></component>
                     </template>
                 </VCard>
@@ -55,15 +55,11 @@ const rejectVacationRequest = () => {
     if (!activeVacationId.value) return;
 
     vacationsStore.rejectVacationRequest(activeVacationId.value, rejectReason.value);
-    snackbarStore.showMessage("Žádost zamítnuta", "", SnackbarMessageType.Success);
+    snackbarStore.showMessage("Žádost zamítnuta", undefined, SnackbarMessageType.Success);
     closeDialog();
 };
 
 watch(activeVacationId, (newValue) => {
-    if (newValue) {
-        isDialogOpen.value = true;
-    } else {
-        isDialogOpen.value = false;
-    }
+    isDialogOpen.value = newValue !== null;
 });
 </script>

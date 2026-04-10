@@ -3,7 +3,7 @@
         <VCardTitle class="d-flex align-center pl-8 pr-8">
             {{ title }}
             <template v-if="!hideSearch">
-                <VSpacer></VSpacer>
+                <VSpacer />
                 <VTextField
                     :model-value="search"
                     density="compact"
@@ -14,7 +14,7 @@
                     hide-details
                     single-line
                     @update:model-value="onSearchChange"
-                ></VTextField>
+                />
             </template>
         </VCardTitle>
         <VDataTable
@@ -74,7 +74,7 @@
                     <VBtn
                         v-if="isCancelAllowed"
                         v-tooltip:top="'Zrušit'"
-                        icon="mdi-close"
+                        icon="mdi-trash-can"
                         size="small"
                         color="red"
                         @click="cancelVacationRequest(item.id)"
@@ -88,14 +88,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useField } from "vee-validate";
-import * as yup from "yup";
-import { type Vacation, VacationStatus } from "@/vacations/models/vacation";
-import { VacationType } from "@/vacations/models/vacation";
+import { type Vacation, VacationStatus, VacationType } from "@/vacations/models/vacation";
 import { formatDate } from "@/shared/utils/date-time-utils";
 import { userHasPermission } from "@/shared/utils/user-has-permission";
-import { useUserStore } from "@/shared/stores/use-user-store";
-import { storeToRefs } from "pinia";
 import { UserPermission } from "@/shared/models/user-permissions";
 import { computed, ref } from "vue";
 import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
@@ -126,23 +121,13 @@ const props = withDefaults(
     },
 );
 
-const userStore = useUserStore();
-const { activeUser } = storeToRefs(userStore);
 const vacationsStore = useVacationsStore();
 const snackbarStore = useSnackbarStore();
 
-const searchSchema = yup
-    .string()
-    .trim()
-    .transform((val: string) => (val ? val.replace(/\s+/g, " ") : val));
-
-const { value: search, handleChange } = useField<string>("search", searchSchema, {
-    initialValue: "",
-});
+const search = ref("");
 
 function onSearchChange(val: string | null) {
-    const normalized = searchSchema.cast(val ?? "");
-    handleChange(normalized ?? "", false);
+    search.value = (val ?? "").replace(/\s+/g, " ").trim();
 }
 
 const rejectVacationRequestId = ref<number | null>(null);
@@ -178,6 +163,7 @@ const vacationStatusColor = (status: VacationStatus): string => {
             return "";
     }
 };
+
 const vacationStatus = (status: VacationStatus): string => {
     switch (status) {
         case VacationStatus.Pending:
@@ -193,37 +179,18 @@ const vacationStatus = (status: VacationStatus): string => {
 
 const approveVacationRequest = (vacationId: number) => {
     vacationsStore.approveVacationRequest(vacationId);
-    snackbarStore.showMessage("Žádost schválena", "", SnackbarMessageType.Success);
+    snackbarStore.showMessage("Žádost schválena", undefined, SnackbarMessageType.Success);
 };
 
 const cancelVacationRequest = (vacationId: number) => {
     vacationsStore.cancelVacationRequest(vacationId);
-    snackbarStore.showMessage("Žádost zrušena", "", SnackbarMessageType.Success);
+    snackbarStore.showMessage("Žádost zrušena", undefined, SnackbarMessageType.Success);
 };
 
-const isApproveAllowed = computed(() => {
-    if (!activeUser.value) return false;
-
-    return userHasPermission(UserPermission.ApproveRequests);
-});
-
-const isRejectAllowed = computed(() => {
-    if (!activeUser.value) return false;
-
-    return userHasPermission(UserPermission.RejectRequests);
-});
-
-const isEditAllowed = computed(() => {
-    if (!activeUser.value) return false;
-
-    return userHasPermission(UserPermission.EditRequest);
-});
-
-const isCancelAllowed = computed(() => {
-    if (!activeUser.value) return false;
-
-    return userHasPermission(UserPermission.CancelRequest);
-});
+const isApproveAllowed = computed(() => userHasPermission(UserPermission.ApproveRequests));
+const isRejectAllowed = computed(() => userHasPermission(UserPermission.RejectRequests));
+const isEditAllowed = computed(() => userHasPermission(UserPermission.EditRequest));
+const isCancelAllowed = computed(() => userHasPermission(UserPermission.CancelRequest));
 
 const areActionsVisible = computed(() => {
     return (

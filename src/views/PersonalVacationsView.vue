@@ -28,10 +28,13 @@ import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { storeToRefs } from "pinia";
 import { userHasPermission } from "@/shared/utils/user-has-permission";
 import { UserPermission } from "@/shared/models/user-permissions";
+import { computed } from "vue";
 
 const vacationsStore = useVacationsStore();
 const { userUnresolvedVacations, userResolvedVacations, isLoading } = storeToRefs(vacationsStore);
 
-const canCreateRequest = userHasPermission(UserPermission.CreateRequest);
-const canViewPersonalRequests = userHasPermission(UserPermission.ViewPersonalVacations);
+const canCreateRequest = computed(() => userHasPermission(UserPermission.CreateRequest));
+const canViewPersonalRequests = computed(() =>
+    userHasPermission(UserPermission.ViewPersonalVacations),
+);
 </script>

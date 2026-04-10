@@ -20,7 +20,7 @@
                         class="mb-1"
                         multiple="range"
                         :min="minDate"
-                    ></VDatePicker>
+                    />
                     <div
                         v-if="datesField.errorMessage.value"
                         class="text-error text-caption mb-4 ml-4"
@@ -35,7 +35,7 @@
                         :items="vacationTypes"
                         variant="outlined"
                         class="mb-1"
-                    ></VSelect>
+                    />
                     <VTextField
                         v-model="commentaryField.value.value"
                         :error-messages="commentaryField.errorMessage.value"
@@ -43,7 +43,7 @@
                         variant="outlined"
                         autocomplete="off"
                         class="mb-1"
-                    ></VTextField>
+                    />
                     <VBtn
                         :disabled="!meta.valid || !meta.dirty"
                         color="primary"
@@ -77,7 +77,8 @@ const snackbarStore = useSnackbarStore();
 
 const isDialogOpen = ref(false);
 
-const minDate = new Date(Date.now() + 86400000);
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const minDate = new Date(Date.now() + ONE_DAY_MS);
 
 const vacationTypes = [
     { title: "Dovolená", value: VacationType.Regular },
@@ -120,7 +121,11 @@ const submitRequest = handleSubmit((values) => {
         activeUser.value.employeeId,
         activeUser.value.username,
     );
-    snackbarStore.showMessage("Žádost byla úspěšně vytvořena", "", SnackbarMessageType.Success);
+    snackbarStore.showMessage(
+        "Žádost byla úspěšně vytvořena",
+        undefined,
+        SnackbarMessageType.Success,
+    );
 
     closeDialog();
 });

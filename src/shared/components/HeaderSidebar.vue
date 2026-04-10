@@ -45,7 +45,6 @@
                 <VListItem
                     prepend-icon="mdi-logout"
                     title="Odhlásit"
-                    :to="{ name: Routes.Login }"
                     color="primary"
                     active
                     @click="logout"
@@ -67,7 +66,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const userStore = useUserStore();
-const { isLoggedIn, activeUser } = storeToRefs(userStore);
+const { isLoggedIn } = storeToRefs(userStore);
 
 const theme = useTheme();
 const isDarkTheme = computed({
@@ -84,23 +83,17 @@ const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;
 };
 
-const showMyVacations = computed(() => {
-    if (!isLoggedIn.value || !activeUser.value) return false;
+const showMyVacations = computed(
+    () => isLoggedIn.value && userHasPermission(UserPermission.ViewPersonalVacations),
+);
 
-    return userHasPermission(UserPermission.ViewPersonalVacations);
-});
+const showPendingVacations = computed(
+    () => isLoggedIn.value && userHasPermission(UserPermission.ViewPendingVacations),
+);
 
-const showPendingVacations = computed(() => {
-    if (!isLoggedIn.value || !activeUser.value) return false;
-
-    return userHasPermission(UserPermission.ViewPendingVacations);
-});
-
-const showApprovedRejectedVacations = computed(() => {
-    if (!isLoggedIn.value || !activeUser.value) return false;
-
-    return userHasPermission(UserPermission.ViewApprovedRejectedVacations);
-});
+const showApprovedRejectedVacations = computed(
+    () => isLoggedIn.value && userHasPermission(UserPermission.ViewApprovedRejectedVacations),
+);
 
 const logout = () => {
     userStore.logOut();

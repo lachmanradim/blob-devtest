@@ -23,7 +23,7 @@
                             variant="outlined"
                             rounded="pill"
                             autocomplete="off"
-                        ></VSelect>
+                        />
                         <VBtn
                             color="primary"
                             class="mt-4 align-self-end"
