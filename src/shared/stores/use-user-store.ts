@@ -14,7 +14,7 @@ export const useUserStore = defineStore("user", () => {
     const activeUser = ref<User | null>(initialUser);
 
     const logIn = (username: string, role: UserRole) => {
-        const user: User = { id: 1, username, role };
+        const user: User = { employeeId: 1, username, role };
         isLoggedIn.value = true;
         activeUser.value = user;
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));

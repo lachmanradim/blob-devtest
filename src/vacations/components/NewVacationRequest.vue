@@ -110,14 +110,14 @@ const closeDialog = () => {
 const submitRequest = handleSubmit((values) => {
     if (!activeUser.value) return;
 
-    vacationsStore.requestVacation(
+    vacationsStore.createVacationRequest(
         new Date(),
         values.dates[0],
         values.dates[1] ?? values.dates[0],
         values.type,
         VacationStatus.Pending,
         values.commentary,
-        activeUser.value.id,
+        activeUser.value.employeeId,
         activeUser.value.username,
     );
     snackbarStore.showMessage("Žádost byla úspěšně vytvořena", "", SnackbarMessageType.Success);

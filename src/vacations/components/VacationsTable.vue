@@ -53,7 +53,7 @@
                         icon="mdi-check"
                         size="small"
                         color="green"
-                        @click="approveVacation(item.id)"
+                        @click="approveVacationRequest(item.id)"
                     />
                     <VBtn
                         v-if="isRejectAllowed"
@@ -77,13 +77,13 @@
                         icon="mdi-close"
                         size="small"
                         color="red"
-                        @click="cancelVacation(item.id)"
+                        @click="cancelVacationRequest(item.id)"
                     />
                 </div>
             </template>
         </VDataTable>
     </VCard>
-    <VacationReject v-if="isRejectAllowed" v-model="rejectVacationId" />
+    <VacationReject v-if="isRejectAllowed" v-model="rejectVacationRequestId" />
     <VacationEdit v-if="isEditAllowed" v-model="editVacationId" />
 </template>
 
@@ -145,9 +145,9 @@ function onSearchChange(val: string | null) {
     handleChange(normalized ?? "", false);
 }
 
-const rejectVacationId = ref<number | null>(null);
+const rejectVacationRequestId = ref<number | null>(null);
 const openRejectDialog = (vacationId: number) => {
-    rejectVacationId.value = vacationId;
+    rejectVacationRequestId.value = vacationId;
 };
 
 const editVacationId = ref<number | null>(null);
@@ -191,14 +191,14 @@ const vacationStatus = (status: VacationStatus): string => {
     }
 };
 
-const approveVacation = (vacationId: number) => {
-    vacationsStore.approveVacation(vacationId);
-    snackbarStore.showMessage("Dovolená schválena", "", SnackbarMessageType.Success);
+const approveVacationRequest = (vacationId: number) => {
+    vacationsStore.approveVacationRequest(vacationId);
+    snackbarStore.showMessage("Žádost schválena", "", SnackbarMessageType.Success);
 };
 
-const cancelVacation = (vacationId: number) => {
-    vacationsStore.cancelVacation(vacationId);
-    snackbarStore.showMessage("Dovolená zrušena", "", SnackbarMessageType.Success);
+const cancelVacationRequest = (vacationId: number) => {
+    vacationsStore.cancelVacationRequest(vacationId);
+    snackbarStore.showMessage("Žádost zrušena", "", SnackbarMessageType.Success);
 };
 
 const isApproveAllowed = computed(() => {

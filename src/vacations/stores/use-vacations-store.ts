@@ -14,7 +14,7 @@ export const useVacationsStore = defineStore("vacations", () => {
     const userVacations = computed(() => {
         if (!allVacations.value.length || !activeUser.value) return [];
 
-        return allVacations.value.filter((v) => v.employeeId === activeUser.value?.id);
+        return allVacations.value.filter((v) => v.employeeId === activeUser.value?.employeeId);
     });
 
     const userUnresolvedVacations = computed(() => {
@@ -47,7 +47,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         return allVacations.value.filter((v) => v.status === VacationStatus.Pending);
     });
 
-    const requestVacation = (
+    const createVacationRequest = (
         dateCreated: Date,
         dateFrom: Date,
         dateTo: Date,
@@ -89,7 +89,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         }
     };
 
-    const cancelVacation = (vacationId: number) => {
+    const cancelVacationRequest = (vacationId: number) => {
         const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
@@ -97,7 +97,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         }
     };
 
-    const approveVacation = (vacationId: number) => {
+    const approveVacationRequest = (vacationId: number) => {
         const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
@@ -105,7 +105,7 @@ export const useVacationsStore = defineStore("vacations", () => {
         }
     };
 
-    const rejectVacation = (vacationId: number, reason: string) => {
+    const rejectVacationRequest = (vacationId: number, reason: string) => {
         const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
@@ -144,10 +144,10 @@ export const useVacationsStore = defineStore("vacations", () => {
 
         isLoading: readonly(isLoading),
 
-        requestVacation,
+        createVacationRequest,
         editVacationRequest,
-        approveVacation,
-        rejectVacation,
-        cancelVacation,
+        approveVacationRequest,
+        rejectVacationRequest,
+        cancelVacationRequest,
     };
 });

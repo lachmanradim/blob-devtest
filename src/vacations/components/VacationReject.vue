@@ -1,10 +1,10 @@
 <template>
     <VDialog v-model="isDialogOpen" max-width="500">
         <VConfirmEdit
-            ok-text="Zamítnout"
+            ok-text="Zamítnout žádost"
             :disabled="confirmDisabledButtons"
             @cancel="closeDialog"
-            @save="rejectVacation"
+            @save="rejectVacationRequest"
         >
             <template #default="{ actions }">
                 <VCard title="Zamítnout žádost" rounded="xl">
@@ -51,11 +51,11 @@ const closeDialog = () => {
     isDialogOpen.value = false;
 };
 
-const rejectVacation = () => {
+const rejectVacationRequest = () => {
     if (!activeVacationId.value) return;
 
-    vacationsStore.rejectVacation(activeVacationId.value, rejectReason.value);
-    snackbarStore.showMessage("Dovolená zamítnuta", "", SnackbarMessageType.Success);
+    vacationsStore.rejectVacationRequest(activeVacationId.value, rejectReason.value);
+    snackbarStore.showMessage("Žádost zamítnuta", "", SnackbarMessageType.Success);
     closeDialog();
 };
 
