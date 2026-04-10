@@ -15,12 +15,16 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
-            name: Routes.Login,
             path: "/",
+            redirect: { name: Routes.Login },
+        },
+        {
+            name: Routes.Login,
+            path: "/prihlaseni",
             component: () => import("@/views/LoginView.vue"),
         },
         {
-            path: "",
+            path: "/",
             component: () => import("@/layouts/MainLayout.vue"),
             children: [
                 {
