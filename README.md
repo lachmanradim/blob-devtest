@@ -1,6 +1,11 @@
-# blob-devtest
+# Dovolenkátor
 
-Dovolenkátor by: Radim Lachman
+Malá SPA aplikace na vytváření a správu dovolených
+
+## Features
+
+- **Zaměstnanec** role: může vytvořit, upravit, nebo zrušit žádost od dovolenou, nebo sick day
+- **Admin** role: může zobrazit, schválit, nebo zamítnout všechny žádosti o dovolené
 
 ## Tech Stack
 
@@ -8,6 +13,8 @@ Dovolenkátor by: Radim Lachman
 - [TypeScript](https://www.typescriptlang.org/)
 - [Vuetify 4](https://vuetifyjs.com/) — UI component library
 - [Vue Router 5](https://router.vuejs.org/)
+- [Pinia](https://pinia.vuejs.org/) — state management
+- [vee-validate](https://vee-validate.logaretm.com/) + [yup](https://github.com/jquense/yup) — form validation
 - [Vite 8](https://vitejs.dev/) — build tool
 - [SCSS](https://sass-lang.com/)
 - [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)
@@ -34,18 +41,3 @@ pnpm install
 | `pnpm lint`       | Lint all files                      |
 | `pnpm lint:fix`   | Lint and auto-fix all files         |
 | `pnpm format`     | Format source files with Prettier   |
-
-## Project Structure
-
-```
-src/
-├── main.ts          # App entry point
-├── App.vue          # Root component
-├── router/
-│   └── index.ts     # Vue Router configuration
-├── styles/
-│   ├── main.scss    # Global styles
-│   └── settings.scss # Vuetify SCSS variable overrides
-└── views/
-    └── HomeView.vue # Home page
-```
