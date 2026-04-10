@@ -1,5 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
-import { VacationStatus, type Vacation } from "../models/vacation";
+import { VacationStatus, VacationType, type Vacation } from "../models/vacation";
 import { computed, readonly, ref, watch } from "vue";
 import { useUserStore } from "@/shared/stores/use-user-store";
 import { getVacationsList } from "../apis/vacations-list-api";
@@ -15,6 +15,12 @@ export const useVacationsStore = defineStore("vacations", () => {
         if (!allVacations.value.length || !activeUser.value) return [];
 
         return allVacations.value.filter((v) => v.employeeId === activeUser.value?.id);
+    });
+
+    const userUnresolvedVacations = computed(() => {
+        if (!userVacations.value.length) return [];
+
+        return userVacations.value.filter((v) => v.status === VacationStatus.Pending);
     });
 
     const userResolvedVacations = computed(() => {
@@ -41,8 +47,54 @@ export const useVacationsStore = defineStore("vacations", () => {
         return allVacations.value.filter((v) => v.status === VacationStatus.Pending);
     });
 
-    const requestVacation = (vacation: Vacation) => {
+    const requestVacation = (
+        dateCreated: Date,
+        dateFrom: Date,
+        dateTo: Date,
+        type: VacationType,
+        status: VacationStatus,
+        commentary: string,
+        employeeId: number,
+        employeeName: string,
+    ) => {
+        const vacation: Vacation = {
+            id: allVacations.value.length + 1,
+            dateCreated,
+            dateFrom,
+            dateTo,
+            type,
+            status,
+            commentary,
+            employeeId,
+            employeeName,
+        };
+
         allVacations.value.push(vacation);
+    };
+
+    const editVacationRequest = (
+        vacationId: number,
+        dateFrom: Date,
+        dateTo: Date,
+        type: VacationType,
+        commentary: string,
+    ) => {
+        const vacation = allVacations.value.find((v) => v.id === vacationId);
+
+        if (vacation && vacation.status === VacationStatus.Pending) {
+            vacation.dateFrom = dateFrom;
+            vacation.dateTo = dateTo;
+            vacation.type = type;
+            vacation.commentary = commentary;
+        }
+    };
+
+    const cancelVacation = (vacationId: number) => {
+        const vacation = allVacations.value.find((v) => v.id === vacationId);
+
+        if (vacation && vacation.status === VacationStatus.Pending) {
+            allVacations.value = allVacations.value.filter((v) => v.id !== vacationId);
+        }
     };
 
     const approveVacation = (vacationId: number) => {
@@ -65,8 +117,7 @@ export const useVacationsStore = defineStore("vacations", () => {
     watch(
         isLoggedIn,
         async (newIsLoggedIn) => {
-            if (!newIsLoggedIn) {
-                allVacations.value = [];
+            if (!newIsLoggedIn || allVacations.value.length) {
                 return;
             }
 
@@ -84,7 +135,7 @@ export const useVacationsStore = defineStore("vacations", () => {
     );
 
     return {
-        userVacations,
+        userUnresolvedVacations,
         userResolvedVacations,
 
         approvedVacations,
@@ -94,7 +145,9 @@ export const useVacationsStore = defineStore("vacations", () => {
         isLoading: readonly(isLoading),
 
         requestVacation,
+        editVacationRequest,
         approveVacation,
         rejectVacation,
+        cancelVacation,
     };
 });

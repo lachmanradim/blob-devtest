@@ -1,9 +1,13 @@
 import { rolePermissions, UserPermission } from "../models/user-permissions";
-import { User } from "../models/user";
+import { useUserStore } from "../stores/use-user-store";
+import { storeToRefs } from "pinia";
 
-export const userHasPermission = (user: User | null, permission: UserPermission): boolean => {
-    if (!user || !permission) return false;
+export const userHasPermission = (permission: UserPermission): boolean => {
+    const userStore = useUserStore();
+    const { activeUser } = storeToRefs(userStore);
 
-    const permissions = rolePermissions[user.role];
+    if (!activeUser.value || !permission) return false;
+
+    const permissions = rolePermissions[activeUser.value.role];
     return permissions.includes(permission);
 };

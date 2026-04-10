@@ -16,7 +16,3 @@
 <script setup lang="ts">
 import Snackbar from "./shared/components/SnackbarMessages.vue";
 </script>
-
-<style lang="scss">
-@use "../styles/main";
-</style>

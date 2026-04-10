@@ -59,7 +59,7 @@ router.beforeEach((to) => {
         return true;
     }
 
-    if (userStore.activeUser && userHasPermission(userStore.activeUser, requiredPermission)) {
+    if (userStore.activeUser && userHasPermission(requiredPermission)) {
         return;
     }
 
@@ -67,11 +67,11 @@ router.beforeEach((to) => {
         return { name: Routes.Login };
     }
 
-    if (userHasPermission(userStore.activeUser, UserPermission.ViewPendingVacations)) {
+    if (userHasPermission(UserPermission.ViewPendingVacations)) {
         return { name: Routes.PendingVacations };
     }
 
-    if (userHasPermission(userStore.activeUser, UserPermission.ViewPersonalVacations)) {
+    if (userHasPermission(UserPermission.ViewPersonalVacations)) {
         return { name: Routes.PersonalVacations };
     }
 

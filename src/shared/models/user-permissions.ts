@@ -8,6 +8,7 @@ export enum UserPermission {
     ApproveRequests = "approve-requests",
     RejectRequests = "reject-requests",
     CreateRequest = "create-request",
+    CancelRequest = "cancel-request",
 }
 
 export const rolePermissions: Record<UserRole, UserPermission[]> = {
@@ -15,6 +16,7 @@ export const rolePermissions: Record<UserRole, UserPermission[]> = {
         UserPermission.ViewPersonalVacations,
         UserPermission.CreateRequest,
         UserPermission.EditRequest,
+        UserPermission.CancelRequest,
     ],
     [UserRole.Admin]: [
         UserPermission.ViewPendingVacations,

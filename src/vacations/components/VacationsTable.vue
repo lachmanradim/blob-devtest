@@ -36,7 +36,12 @@
                 </VChip>
             </template>
             <template v-if="!hideStatusColumn" #item.status="{ item }">
-                <VChip class="text-uppercase" size="small" label>
+                <VChip
+                    class="text-uppercase"
+                    size="small"
+                    label
+                    :color="vacationStatusColor(item.status)"
+                >
                     {{ vacationStatus(item.status) }}
                 </VChip>
             </template>
@@ -58,41 +63,34 @@
                         color="red"
                         @click="openRejectDialog(item.id)"
                     />
+                    <VBtn
+                        v-if="isEditAllowed"
+                        v-tooltip:top="'Upravit'"
+                        icon="mdi-pencil"
+                        size="small"
+                        color="blue"
+                        @click="openEditDialog(item.id)"
+                    />
+                    <VBtn
+                        v-if="isCancelAllowed"
+                        v-tooltip:top="'Zrušit'"
+                        icon="mdi-close"
+                        size="small"
+                        color="red"
+                        @click="cancelVacation(item.id)"
+                    />
                 </div>
             </template>
         </VDataTable>
     </VCard>
-    <VDialog v-if="areActionsVisible" v-model="isRejectDialogOpen" max-width="500">
-        <VConfirmEdit
-            ok-text="Zamítnout"
-            :disabled="confirmDisabledButtons"
-            @cancel="closeRejectDialog"
-            @save="rejectVacation"
-        >
-            <template #default="{ actions }">
-                <VCard title="Zamítnout žádost" rounded="xl">
-                    <VCardText>
-                        <VTextField
-                            v-model="rejectReason"
-                            label="Důvod zamítnutí"
-                            variant="outlined"
-                        ></VTextField>
-                    </VCardText>
-
-                    <template #actions>
-                        <VSpacer></VSpacer>
-                        <component :is="actions"></component>
-                    </template>
-                </VCard>
-            </template>
-        </VConfirmEdit>
-    </VDialog>
+    <VacationReject v-if="isRejectAllowed" v-model="rejectVacationId" />
+    <VacationEdit v-if="isEditAllowed" v-model="editVacationId" />
 </template>
 
 <script lang="ts" setup>
 import { useField } from "vee-validate";
 import * as yup from "yup";
-import type { Vacation } from "@/vacations/models/vacation";
+import { type Vacation, VacationStatus } from "@/vacations/models/vacation";
 import { VacationType } from "@/vacations/models/vacation";
 import { formatDate } from "@/shared/utils/date-time-utils";
 import { userHasPermission } from "@/shared/utils/user-has-permission";
@@ -104,6 +102,8 @@ import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
 import type { DataTableHeader } from "vuetify";
+import VacationReject from "./VacationReject.vue";
+import VacationEdit from "./VacationEdit.vue";
 
 const props = withDefaults(
     defineProps<{
@@ -145,26 +145,14 @@ function onSearchChange(val: string | null) {
     handleChange(normalized ?? "", false);
 }
 
-const isRejectDialogOpen = ref(false);
-const activeVacationId = ref<number | null>(null);
-const rejectReason = ref<string>("");
-
-const confirmDisabledButtons = computed<boolean | ("save" | "cancel")[]>(() => {
-    if (!rejectReason.value.length) return ["save"];
-
-    return false;
-});
-
+const rejectVacationId = ref<number | null>(null);
 const openRejectDialog = (vacationId: number) => {
-    activeVacationId.value = vacationId;
-    rejectReason.value = "";
-    isRejectDialogOpen.value = true;
+    rejectVacationId.value = vacationId;
 };
 
-const closeRejectDialog = () => {
-    activeVacationId.value = null;
-    rejectReason.value = "";
-    isRejectDialogOpen.value = false;
+const editVacationId = ref<number | null>(null);
+const openEditDialog = (vacationId: number) => {
+    editVacationId.value = vacationId;
 };
 
 const vacationType = (type: VacationType): string => {
@@ -178,13 +166,25 @@ const vacationType = (type: VacationType): string => {
     }
 };
 
-const vacationStatus = (status: string): string => {
+const vacationStatusColor = (status: VacationStatus): string => {
     switch (status) {
-        case "Pending":
+        case VacationStatus.Pending:
+            return "orange";
+        case VacationStatus.Approved:
+            return "green";
+        case VacationStatus.Rejected:
+            return "red";
+        default:
+            return "";
+    }
+};
+const vacationStatus = (status: VacationStatus): string => {
+    switch (status) {
+        case VacationStatus.Pending:
             return "Čeká na schválení";
-        case "Approved":
+        case VacationStatus.Approved:
             return "Schváleno";
-        case "Rejected":
+        case VacationStatus.Rejected:
             return "Zamítnuto";
         default:
             return "";
@@ -196,35 +196,50 @@ const approveVacation = (vacationId: number) => {
     snackbarStore.showMessage("Dovolená schválena", "", SnackbarMessageType.Success);
 };
 
-const rejectVacation = () => {
-    if (!activeVacationId.value) return;
-
-    vacationsStore.rejectVacation(activeVacationId.value, rejectReason.value);
-    snackbarStore.showMessage("Dovolená zamítnuta", "", SnackbarMessageType.Success);
-    closeRejectDialog();
+const cancelVacation = (vacationId: number) => {
+    vacationsStore.cancelVacation(vacationId);
+    snackbarStore.showMessage("Dovolená zrušena", "", SnackbarMessageType.Success);
 };
 
 const isApproveAllowed = computed(() => {
     if (!activeUser.value) return false;
 
-    return userHasPermission(activeUser.value, UserPermission.ApproveRequests);
+    return userHasPermission(UserPermission.ApproveRequests);
 });
 
 const isRejectAllowed = computed(() => {
     if (!activeUser.value) return false;
 
-    return userHasPermission(activeUser.value, UserPermission.RejectRequests);
+    return userHasPermission(UserPermission.RejectRequests);
+});
+
+const isEditAllowed = computed(() => {
+    if (!activeUser.value) return false;
+
+    return userHasPermission(UserPermission.EditRequest);
+});
+
+const isCancelAllowed = computed(() => {
+    if (!activeUser.value) return false;
+
+    return userHasPermission(UserPermission.CancelRequest);
 });
 
 const areActionsVisible = computed(() => {
-    return !props.hideActionsColumn && (isApproveAllowed.value || isRejectAllowed.value);
+    return (
+        !props.hideActionsColumn &&
+        (isApproveAllowed.value ||
+            isRejectAllowed.value ||
+            isEditAllowed.value ||
+            isCancelAllowed.value)
+    );
 });
 
 const tableHeaders = computed(() => {
     const headers: DataTableHeader[] = [
-        { title: "Datum od", value: "dateFrom", key: "dateFrom", width: "160px" },
-        { title: "Datum do", value: "dateTo", key: "dateTo", width: "160px" },
-        { title: "Datum vytvoření", value: "dateCreated", key: "dateCreated", width: "168px" },
+        { title: "Datum od", value: "dateFrom", key: "dateFrom", width: "120px" },
+        { title: "Datum do", value: "dateTo", key: "dateTo", width: "120px" },
+        { title: "Datum vytvoření", value: "dateCreated", key: "dateCreated", width: "160px" },
         { title: "Typ", value: "type", key: "type", sortable: false, width: "100px" },
         {
             title: "Komentář",

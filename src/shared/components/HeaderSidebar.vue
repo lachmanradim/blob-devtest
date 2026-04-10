@@ -87,19 +87,19 @@ const toggleSidebar = () => {
 const showMyVacations = computed(() => {
     if (!isLoggedIn.value || !activeUser.value) return false;
 
-    return userHasPermission(activeUser.value, UserPermission.ViewPersonalVacations);
+    return userHasPermission(UserPermission.ViewPersonalVacations);
 });
 
 const showPendingVacations = computed(() => {
     if (!isLoggedIn.value || !activeUser.value) return false;
 
-    return userHasPermission(activeUser.value, UserPermission.ViewPendingVacations);
+    return userHasPermission(UserPermission.ViewPendingVacations);
 });
 
 const showApprovedRejectedVacations = computed(() => {
     if (!isLoggedIn.value || !activeUser.value) return false;
 
-    return userHasPermission(activeUser.value, UserPermission.ViewApprovedRejectedVacations);
+    return userHasPermission(UserPermission.ViewApprovedRejectedVacations);
 });
 
 const logout = () => {

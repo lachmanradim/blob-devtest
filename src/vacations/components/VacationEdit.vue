@@ -1,15 +1,12 @@
 <template>
-    <VCard border rounded="pill" class="pa-3 mb-6">
-        <VBtn variant="outlined" prepend-icon="mdi-plus" @click="openDialog"> Nová žádost </VBtn>
-    </VCard>
     <VDialog v-model="isDialogOpen" max-width="500">
         <VCard rounded="xl">
             <VCardTitle class="d-flex align-center justify-space-between pt-4 px-6">
-                Žádost o dovolenou
+                Upravit žádost
                 <VBtn icon="mdi-close" size="small" @click="closeDialog" />
             </VCardTitle>
             <VCardText>
-                <form class="mt-4 d-flex flex-column" @submit.prevent="submitRequest">
+                <form class="mt-4 d-flex flex-column" @submit.prevent="editRequest">
                     <VDatePicker
                         v-model="datesField.value.value"
                         hide-header
@@ -51,7 +48,7 @@
                         block
                         type="submit"
                     >
-                        Odeslat žádost
+                        Upravit žádost
                     </VBtn>
                 </form>
             </VCardText>
@@ -60,29 +57,28 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { VacationStatus, VacationType } from "../models/vacation";
-import { useField, useForm } from "vee-validate";
-import { array, date, mixed, object, string } from "yup";
-import { useVacationsStore } from "../stores/use-vacations-store";
-import { useUserStore } from "@/shared/stores/use-user-store";
-import { storeToRefs } from "pinia";
+import { computed, ref, watch } from "vue";
+import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
+import { storeToRefs } from "pinia";
+import { VacationType } from "../models/vacation";
+import { useField, useForm } from "vee-validate";
+import { array, date, mixed, object, string } from "yup";
+import { useUserStore } from "@/shared/stores/use-user-store";
 
 const vacationsStore = useVacationsStore();
+const { userUnresolvedVacations } = storeToRefs(vacationsStore);
+const snackbarStore = useSnackbarStore();
 const userStore = useUserStore();
 const { activeUser } = storeToRefs(userStore);
-const snackbarStore = useSnackbarStore();
 
+const activeVacationId = defineModel<number | null>();
 const isDialogOpen = ref(false);
 
-const minDate = new Date(Date.now() + 86400000);
-
-const vacationTypes = [
-    { title: "Dovolená", value: VacationType.Regular },
-    { title: "Sick Day", value: VacationType.SickDay },
-];
+const activeVacation = computed(() => {
+    return userUnresolvedVacations.value.find((v) => v.id === activeVacationId.value) || null;
+});
 
 const { handleSubmit, meta, resetForm } = useForm({
     validationSchema: object({
@@ -98,30 +94,45 @@ const datesField = useField<Date[]>("dates");
 const typeField = useField<VacationType>("type");
 const commentaryField = useField<string>("commentary");
 
-const openDialog = () => {
-    isDialogOpen.value = true;
-};
-
 const closeDialog = () => {
-    resetForm();
+    activeVacationId.value = null;
     isDialogOpen.value = false;
 };
 
-const submitRequest = handleSubmit((values) => {
-    if (!activeUser.value) return;
+const editRequest = handleSubmit((values) => {
+    if (!activeUser.value || !activeVacationId.value || !values.type) return;
 
-    vacationsStore.requestVacation(
-        new Date(),
+    vacationsStore.editVacationRequest(
+        activeVacationId.value,
         values.dates[0],
         values.dates[1] ?? values.dates[0],
         values.type,
-        VacationStatus.Pending,
         values.commentary,
-        activeUser.value.id,
-        activeUser.value.username,
     );
-    snackbarStore.showMessage("Žádost byla úspěšně vytvořena", "", SnackbarMessageType.Success);
+    snackbarStore.showMessage("Žádost byla úspěšně upravena", "", SnackbarMessageType.Success);
 
     closeDialog();
 });
+
+watch(activeVacation, (vacation) => {
+    if (vacation) {
+        resetForm({
+            values: {
+                dates: [vacation.dateFrom, vacation.dateTo],
+                type: vacation.type,
+                commentary: vacation.commentary ?? "",
+            },
+        });
+        isDialogOpen.value = true;
+    } else {
+        isDialogOpen.value = false;
+    }
+});
+
+const minDate = new Date(Date.now() + 86400000);
+
+const vacationTypes = [
+    { title: "Dovolená", value: VacationType.Regular },
+    { title: "Sick Day", value: VacationType.SickDay },
+];
 </script>

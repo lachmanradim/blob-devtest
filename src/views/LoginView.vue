@@ -15,7 +15,7 @@
                             variant="outlined"
                             autocomplete="off"
                         />
-                        <VCombobox
+                        <VSelect
                             v-model="roleField.value.value"
                             :error-messages="roleField.errorMessage.value"
                             label="Přihlásit jako"
@@ -23,12 +23,12 @@
                             variant="outlined"
                             rounded="pill"
                             autocomplete="off"
-                        ></VCombobox>
+                        ></VSelect>
                         <VBtn
                             color="primary"
                             class="mt-4 align-self-end"
                             type="submit"
-                            :disabled="!meta.valid"
+                            :disabled="!meta.valid || !meta.dirty"
                         >
                             Přihlásit
                         </VBtn>
@@ -42,7 +42,7 @@
 <script lang="ts" setup>
 import { useField, useForm } from "vee-validate";
 import { useRouter } from "vue-router";
-import { object, string } from "yup";
+import { mixed, object, string } from "yup";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
 import { Routes } from "@/router/routes";
@@ -50,22 +50,20 @@ import { UserRole } from "@/shared/models/user-role";
 import { useUserStore } from "@/shared/stores/use-user-store";
 import { userHasPermission } from "@/shared/utils/user-has-permission";
 import { UserPermission } from "@/shared/models/user-permissions";
-import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const snackbarStore = useSnackbarStore();
 const userStore = useUserStore();
-const { activeUser } = storeToRefs(userStore);
 
 const { handleSubmit, meta } = useForm({
     validationSchema: object({
         login: string().min(5, "Login musí mít alespoň 5 znaků").required("Login je povinný"),
-        role: object({ title: string(), value: string() }).nullable().required("Role je povinná"),
+        role: mixed<UserRole>().oneOf(Object.values(UserRole)).required("Role je povinná"),
     }),
 });
 
 const loginField = useField<string>("login");
-const roleField = useField<{ title: string; value: UserRole } | null>("role");
+const roleField = useField<UserRole>("role");
 
 const comboboxOptions = [
     { title: "Zaměstnanec", value: UserRole.Employee },
@@ -73,12 +71,12 @@ const comboboxOptions = [
 ];
 
 const submitLogin = handleSubmit((values) => {
-    userStore.logIn(values.login, values.role.value);
+    userStore.logIn(values.login, values.role);
     snackbarStore.showMessage("Přihlášení úspěšné!", "", SnackbarMessageType.Success);
 
-    if (userHasPermission(activeUser.value, UserPermission.ViewPendingVacations)) {
+    if (userHasPermission(UserPermission.ViewPendingVacations)) {
         router.push({ name: Routes.PendingVacations });
-    } else if (userHasPermission(activeUser.value, UserPermission.ViewPersonalVacations)) {
+    } else if (userHasPermission(UserPermission.ViewPersonalVacations)) {
         router.push({ name: Routes.PersonalVacations });
     }
 });
