@@ -31,13 +31,13 @@ const router = createRouter({
                 },
                 {
                     name: Routes.ApprovedRejectedVacations,
-                    path: "/schvalene-zamitnute",
+                    path: "/dovolene/schvalene-zamitnute",
                     component: () => import("@/views/ApprovedRejectedVacations.vue"),
                     meta: { requiredPermission: UserPermission.ViewApprovedRejectedVacations },
                 },
                 {
                     name: Routes.PersonalVacations,
-                    path: "/moje-dovolene",
+                    path: "/dovolene/moje",
                     component: () => import("@/views/PersonalVacationsView.vue"),
                     meta: { requiredPermission: UserPermission.ViewPersonalVacations },
                 },
@@ -59,21 +59,23 @@ router.beforeEach((to) => {
         return true;
     }
 
-    if (!userStore.activeUser || !userHasPermission(userStore.activeUser, requiredPermission)) {
-        if (!userStore.activeUser) {
-            return { name: Routes.Login };
-        }
-
-        if (userHasPermission(userStore.activeUser, UserPermission.ViewPendingVacations)) {
-            return { name: Routes.PendingVacations };
-        }
-
-        if (userHasPermission(userStore.activeUser, UserPermission.ViewPersonalVacations)) {
-            return { name: Routes.PersonalVacations };
-        }
-
-        return { name: Routes.NotFound };
+    if (userStore.activeUser && userHasPermission(userStore.activeUser, requiredPermission)) {
+        return;
     }
+
+    if (!userStore.activeUser) {
+        return { name: Routes.Login };
+    }
+
+    if (userHasPermission(userStore.activeUser, UserPermission.ViewPendingVacations)) {
+        return { name: Routes.PendingVacations };
+    }
+
+    if (userHasPermission(userStore.activeUser, UserPermission.ViewPersonalVacations)) {
+        return { name: Routes.PersonalVacations };
+    }
+
+    return { name: Routes.NotFound };
 });
 
 export default router;

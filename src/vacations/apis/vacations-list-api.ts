@@ -50,6 +50,7 @@ export const getVacationsList = async (): Promise<Vacation[]> => {
                 );
                 return {
                     id: i + 1,
+                    employeeId: 2,
                     employeeName: randomItem(firstNames) + " " + randomItem(lastNames),
                     dateFrom,
                     dateTo,

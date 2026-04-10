@@ -2,13 +2,14 @@
     <VacationsTable
         title="Žádosti ke schválení"
         :items="pendingVacations"
-        searchable
-        :loading="isLoading"
+        :is-loading="isLoading"
+        hide-reject-reason
+        hide-status-column
     />
 </template>
 
 <script setup lang="ts">
-import VacationsTable from "@/vacations/pending-vacations/components/VacationsTable.vue";
+import VacationsTable from "@/vacations/components/VacationsTable.vue";
 import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { storeToRefs } from "pinia";
 

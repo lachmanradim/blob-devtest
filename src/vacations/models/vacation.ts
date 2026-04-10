@@ -11,6 +11,7 @@ export enum VacationType {
 
 export type Vacation = {
     id: number;
+    employeeId: number;
     employeeName: string;
     dateFrom: Date;
     dateTo: Date;

@@ -13,6 +13,7 @@
         "format": "prettier --write src/**/*.{vue,ts,scss}"
     },
     "dependencies": {
+        "@fontsource/roboto": "^5.2.10",
         "@mdi/font": "^7.4.47",
         "pinia": "^3.0.4",
         "vee-validate": "^4.15.1",

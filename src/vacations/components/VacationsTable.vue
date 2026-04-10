@@ -2,7 +2,7 @@
     <VCard border rounded="xl" class="pt-2 mb-4">
         <VCardTitle class="d-flex align-center pl-8 pr-8">
             {{ title }}
-            <template v-if="searchable">
+            <template v-if="!hideSearch">
                 <VSpacer></VSpacer>
                 <VTextField
                     :model-value="search"
@@ -21,12 +21,11 @@
             v-model:search="search"
             class="mt-2"
             :search-fields="['employeeName']"
-            :header-props="{ class: 'bg-surface-light font-weight-bold' }"
+            :header-props="{ class: 'bg-surface-light' }"
             :headers="tableHeaders"
             :items
             striped="even"
-            :loading
-            :hide-default-footer="hideFooter"
+            :loading="isLoading"
         >
             <template #item.dateFrom="{ item }"> {{ formatDate(item.dateFrom) }} </template>
             <template #item.dateTo="{ item }"> {{ formatDate(item.dateTo) }} </template>
@@ -34,6 +33,11 @@
             <template #item.type="{ item }">
                 <VChip class="text-uppercase" size="small" label>
                     {{ vacationType(item.type) }}
+                </VChip>
+            </template>
+            <template v-if="!hideStatusColumn" #item.status="{ item }">
+                <VChip class="text-uppercase" size="small" label>
+                    {{ vacationStatus(item.status) }}
                 </VChip>
             </template>
             <template v-if="areActionsVisible" #item.actions="{ item }">
@@ -99,23 +103,26 @@ import { computed, ref } from "vue";
 import { useVacationsStore } from "@/vacations/stores/use-vacations-store";
 import { useSnackbarStore } from "@/shared/stores/use-snackbar-store";
 import { SnackbarMessageType } from "@/shared/models/snackbar-message";
+import type { DataTableHeader } from "vuetify";
 
 const props = withDefaults(
     defineProps<{
         title: string;
         items: Vacation[];
-        searchable?: boolean;
-        loading?: boolean;
-        hideFooter?: boolean;
-        hideActions?: boolean;
-        showRejectReason?: boolean;
+        isLoading?: boolean;
+        hideSearch?: boolean;
+        hideNameColumn?: boolean;
+        hideActionsColumn?: boolean;
+        hideStatusColumn?: boolean;
+        hideRejectReason?: boolean;
     }>(),
     {
-        searchable: false,
-        loading: false,
-        hideFooter: false,
-        hideActions: false,
-        showRejectReason: false,
+        isLoading: false,
+        hideSearch: false,
+        hideNameColumn: false,
+        hideActionsColumn: false,
+        hideStatusColumn: false,
+        hideRejectReason: false,
     },
 );
 
@@ -171,6 +178,19 @@ const vacationType = (type: VacationType): string => {
     }
 };
 
+const vacationStatus = (status: string): string => {
+    switch (status) {
+        case "Pending":
+            return "Čeká na schválení";
+        case "Approved":
+            return "Schváleno";
+        case "Rejected":
+            return "Zamítnuto";
+        default:
+            return "";
+    }
+};
+
 const approveVacation = (vacationId: number) => {
     vacationsStore.approveVacation(vacationId);
     snackbarStore.showMessage("Dovolená schválena", "", SnackbarMessageType.Success);
@@ -197,12 +217,11 @@ const isRejectAllowed = computed(() => {
 });
 
 const areActionsVisible = computed(() => {
-    return !props.hideActions && (isApproveAllowed.value || isRejectAllowed.value);
+    return !props.hideActionsColumn && (isApproveAllowed.value || isRejectAllowed.value);
 });
 
 const tableHeaders = computed(() => {
-    const headers = [
-        { title: "Jméno", value: "employeeName", key: "employeeName" },
+    const headers: DataTableHeader[] = [
         { title: "Datum od", value: "dateFrom", key: "dateFrom", width: "160px" },
         { title: "Datum do", value: "dateTo", key: "dateTo", width: "160px" },
         { title: "Datum vytvoření", value: "dateCreated", key: "dateCreated", width: "168px" },
@@ -216,6 +235,19 @@ const tableHeaders = computed(() => {
         },
     ];
 
+    if (!props.hideNameColumn) {
+        headers.unshift({ title: "Jméno", value: "employeeName", key: "employeeName" });
+    }
+
+    if (!props.hideStatusColumn) {
+        headers.push({
+            title: "Stav",
+            value: "status",
+            key: "status",
+            width: "120px",
+        });
+    }
+
     if (areActionsVisible.value) {
         headers.push({
             title: "Akce",
@@ -226,7 +258,7 @@ const tableHeaders = computed(() => {
         });
     }
 
-    if (props.showRejectReason) {
+    if (!props.hideRejectReason) {
         headers.push({
             title: "Důvod zamítnutí",
             value: "rejectReason",

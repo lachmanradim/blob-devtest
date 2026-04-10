@@ -6,35 +6,47 @@ import { getVacationsList } from "../apis/vacations-list-api";
 
 export const useVacationsStore = defineStore("vacations", () => {
     const userStore = useUserStore();
-    const { isLoggedIn } = storeToRefs(userStore);
+    const { isLoggedIn, activeUser } = storeToRefs(userStore);
 
-    const vacations = ref<Vacation[]>([]);
+    const allVacations = ref<Vacation[]>([]);
     const isLoading = ref(false);
 
-    const approvedVacations = computed(() => {
-        if (!vacations.value.length) return [];
+    const userVacations = computed(() => {
+        if (!allVacations.value.length || !activeUser.value) return [];
 
-        return vacations.value.filter((v) => v.status === VacationStatus.Approved);
+        return allVacations.value.filter((v) => v.employeeId === activeUser.value?.id);
+    });
+
+    const userResolvedVacations = computed(() => {
+        if (!userVacations.value.length) return [];
+
+        return userVacations.value.filter((v) => v.status !== VacationStatus.Pending);
+    });
+
+    const approvedVacations = computed(() => {
+        if (!allVacations.value.length) return [];
+
+        return allVacations.value.filter((v) => v.status === VacationStatus.Approved);
     });
 
     const rejectedVacations = computed(() => {
-        if (!vacations.value.length) return [];
+        if (!allVacations.value.length) return [];
 
-        return vacations.value.filter((v) => v.status === VacationStatus.Rejected);
+        return allVacations.value.filter((v) => v.status === VacationStatus.Rejected);
     });
 
     const pendingVacations = computed(() => {
-        if (!vacations.value.length) return [];
+        if (!allVacations.value.length) return [];
 
-        return vacations.value.filter((v) => v.status === VacationStatus.Pending);
+        return allVacations.value.filter((v) => v.status === VacationStatus.Pending);
     });
 
-    const createVacation = (vacation: Vacation) => {
-        vacations.value.push(vacation);
+    const requestVacation = (vacation: Vacation) => {
+        allVacations.value.push(vacation);
     };
 
     const approveVacation = (vacationId: number) => {
-        const vacation = vacations.value.find((v) => v.id === vacationId);
+        const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
             vacation.status = VacationStatus.Approved;
@@ -42,7 +54,7 @@ export const useVacationsStore = defineStore("vacations", () => {
     };
 
     const rejectVacation = (vacationId: number, reason: string) => {
-        const vacation = vacations.value.find((v) => v.id === vacationId);
+        const vacation = allVacations.value.find((v) => v.id === vacationId);
 
         if (vacation && vacation.status === VacationStatus.Pending) {
             vacation.status = VacationStatus.Rejected;
@@ -54,14 +66,14 @@ export const useVacationsStore = defineStore("vacations", () => {
         isLoggedIn,
         async (newIsLoggedIn) => {
             if (!newIsLoggedIn) {
-                vacations.value = [];
+                allVacations.value = [];
                 return;
             }
 
             isLoading.value = true;
 
             try {
-                vacations.value = await getVacationsList();
+                allVacations.value = await getVacationsList();
             } catch (error) {
                 console.error("Failed to load vacations:", error);
             } finally {
@@ -72,13 +84,16 @@ export const useVacationsStore = defineStore("vacations", () => {
     );
 
     return {
+        userVacations,
+        userResolvedVacations,
+
         approvedVacations,
         pendingVacations,
         rejectedVacations,
 
         isLoading: readonly(isLoading),
 
-        createVacation,
+        requestVacation,
         approveVacation,
         rejectVacation,
     };
